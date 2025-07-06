@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>congrats tee rak</title>
+  <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #e6f3ff;
+      min-height: 100vh;
+    }
+    
+    /* Container with 3D perspective */
+    .envelope-container {
+      position: relative;
+      width: 350px;
+      height: 220px;
+      margin: 150px auto;
+      perspective: 1000px;
+    }
+
+    /* Back panel and flap share base styles */
+    .envelope-back,
+    .envelope-flap {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    /* Envelope back (body) */
+    .envelope-back {
+      background: linear-gradient(135deg, #f8f8f8, #e8e8e8);
+      transform: rotateX(0);
+      z-index: 1;
+    }
+
+    /* Envelope flap */
+    .envelope-flap {
+      top: 0;
+      height: 50%;
+      background: linear-gradient(135deg, #f0f0f0, #d8d8d8);
+      transform-origin: top center;
+      transition: transform 0.6s ease;
+      z-index: 3;
+      cursor: pointer;
+    }
+
+    /* Flip flap down over front */
+    .envelope-flap.open {
+      transform: rotateX(180deg);
+      z-index: 4;
+    }
+
+    /* Moomin image that slides out */
+    .moomin-image {
+      position: fixed;
+      top: 35%;
+      left: 50%;
+      width: 400px;
+      max-width: 400px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      transform: translate(-50%, 100%);
+      opacity: 0;
+      transition: transform 0.8s ease, opacity 0.8s ease;
+      z-index: 2;
+      cursor: pointer;
+      transform-style: preserve-3d;
+    }
+
+    .moomin-image.reveal {
+      transform: translate(-50%, -20%);
+      opacity: 1;
+      animation: bounceIn 0.8s ease-out;
+    }
+    
+    @keyframes bounceIn {
+      0% { 
+        transform: translate(-50%, -20%) scale(0.3);
+        opacity: 0;
+      }
+      50% { 
+        transform: translate(-50%, -20%) scale(1.1);
+        opacity: 0.8;
+      }
+      70% { 
+        transform: translate(-50%, -20%) scale(0.95);
+        opacity: 1;
+      }
+      100% { 
+        transform: translate(-50%, -20%) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .moomin-image.flipped {
+      transform: translate(-50%, -20%) rotateY(180deg);
+    }
+
+    .moomin-image .front {
+      width: 100%;
+      border-radius: 15px;
+      backface-visibility: hidden;
+    }
+    
+    .moomin-image .back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 15px;
+      backface-visibility: hidden;
+      background: white;
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Indie Flower', cursive;
+      color: #2b5a8c;
+      font-size: 2em;
+      text-align: center;
+      font-weight: 600;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    .moomin-image .back img {
+      max-width: 80%;
+      max-height: 40%;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+
+    .moomin-image .front img {
+      width: 100%;
+      height: auto;
+      border-radius: 15px;
+      display: block;
+    }
+
+    /* Click instruction */
+    .instruction {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Indie Flower', cursive;
+      color: #666;
+      user-select: none;
+      font-size: 0.9em;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+      z-index: 5;
+      pointer-events: none;
+      animation: shake 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(-50%) translateY(0px); }
+      25% { transform: translateX(-50%) translateY(-2px) rotate(1deg); }
+      50% { transform: translateX(-50%) translateY(1px) rotate(-1deg); }
+      75% { transform: translateX(-50%) translateY(-1px) rotate(0.5deg); }
+    }
+    
+    .instruction.hide {
+      opacity: 0;
+    }
+    
+    /* Floating Sparkles */
+    .sparkle {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: radial-gradient(circle, #fff 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 3;
+    }
+    
+    .sparkle.small {
+      width: 3px;
+      height: 3px;
+    }
+    
+    .sparkle.large {
+      width: 8px;
+      height: 8px;
+    }
+    
+    .sparkle.golden {
+      background: radial-gradient(circle, #ffd700 0%, transparent 70%);
+    }
+    
+    .sparkle.blue {
+      background: radial-gradient(circle, #87ceeb 0%, transparent 70%);
+    }
+    
+    .sparkle.active {
+      animation: float-sparkle 4s ease-in-out infinite;
+    }
+    
+    @keyframes float-sparkle {
+      0% {
+        opacity: 0;
+        transform: translateY(0px) scale(0.5);
+      }
+      20% {
+        opacity: 1;
+        transform: translateY(-20px) scale(1);
+      }
+      80% {
+        opacity: 1;
+        transform: translateY(-80px) scale(0.8);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-100px) scale(0.3);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Music -->
+  <audio id="bg-music" preload="auto" style="display: none;">
+    <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.wav" type="audio/wav">
+    <!-- Fallback for browsers that don't support wav -->
+    <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmccCSKG0fPTgjkGHm+z7uGWSwwEU6vn6q5VEQxRqOPt3psVEQ1EoeDtnl0wEA1Ho+LV8l+DGhwMFGu4+uWZSQm6xvPdmkULF2yz6+KZSQu8w/PdlkMPG2ex6uaVRw24yO/mkkYMGGqr7uGTRAi2yO/moEYOP26t7t+URwh2yu/lnkUMF2u37+SbSAu5wPLgkUgIH2+z7uGZSQy4y/PmlkQL..." onerror="this.style.display='none'">
+  </audio>
+
+  <div class="envelope-container">
+    <div class="envelope-back"></div>
+    <div class="envelope-flap"></div>
+    <div class="instruction">press here for a surprise</div>
+
+    <div class="moomin-image">
+      <div class="front">
+        <img src="Moomin-mom.webp" alt="Moomin congratulations">
+      </div>
+      <div class="back">
+        <img src="moomin-love.gif" alt="Moomin love animation">
+        <div>congrats tee rak<br>on the new job<br>- love ian</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const flap = document.querySelector('.envelope-flap');
+    const moomInImage = document.querySelector('.moomin-image');
+    const instruction = document.querySelector('.instruction');
+    let opened = false;
+
+    // Enhanced Floating Sparkles System
+    function createSparkle() {
+      if (!opened) return; // Only after card appears
+      
+      const sparkle = document.createElement('div');
+      sparkle.className = 'sparkle';
+      
+      // Random sparkle variations
+      const variations = ['small', 'large', 'golden', 'blue'];
+      const randomVariation = variations[Math.floor(Math.random() * variations.length)];
+      if (Math.random() < 0.3) { // 30% chance for special sparkles
+        sparkle.classList.add(randomVariation);
+      }
+      
+      // Position around the entire Moomin card area
+      const cardRect = moomInImage.getBoundingClientRect();
+      const x = cardRect.left - 50 + Math.random() * (cardRect.width + 100);
+      const y = cardRect.top + Math.random() * cardRect.height;
+      
+      sparkle.style.left = x + 'px';
+      sparkle.style.top = y + 'px';
+      
+      document.body.appendChild(sparkle);
+      
+      // Activate sparkle with random delay for natural effect
+      setTimeout(() => sparkle.classList.add('active'), Math.random() * 500);
+      
+      // Remove sparkle after animation
+      setTimeout(() => {
+        if (sparkle.parentNode) {
+          sparkle.parentNode.removeChild(sparkle);
+        }
+      }, 4000);
+    }
+    
+    // Create multiple sparkles at once
+    function createSparkleCluster() {
+      const numSparkles = 3 + Math.floor(Math.random() * 4); // 3-6 sparkles
+      for (let i = 0; i < numSparkles; i++) {
+        setTimeout(() => createSparkle(), i * 200);
+      }
+    }
+
+    // Start sparkles after card appears
+    let sparkleInterval;
+    
+    // Enhanced flap click handler with bounce, sparkles, and music
+    flap.addEventListener('click', () => {
+      if (opened) return;
+      opened = true;
+      flap.classList.add('open');
+      instruction.classList.add('hide');
+      
+      // Start gentle background music (short duration)
+      const bgMusic = document.getElementById('bg-music');
+      if (bgMusic) {
+        bgMusic.volume = 0.3; // Gentle volume
+        bgMusic.loop = false; // Don't loop
+        bgMusic.play().catch(e => console.log('Audio autoplay prevented'));
+        
+        // Stop music after 3 seconds (shortly after card reveal)
+        setTimeout(() => {
+          bgMusic.pause();
+          bgMusic.currentTime = 0; // Reset for potential replay
+        }, 3000);
+      }
+      
+      setTimeout(() => {
+        moomInImage.classList.add('reveal');
+        // Start enhanced sparkles after bounce animation completes
+        setTimeout(() => {
+          // Create initial sparkle burst
+          createSparkleCluster();
+          // Then continue with regular sparkles
+          sparkleInterval = setInterval(() => {
+            if (Math.random() < 0.7) {
+              createSparkle(); // Single sparkle
+            } else {
+              createSparkleCluster(); // Sparkle cluster
+            }
+          }, 1200); // More frequent sparkles
+        }, 1000);
+      }, 400);
+    });
+
+    // Add flip functionality to Moomin image
+    moomInImage.addEventListener('click', () => {
+      if (!opened) return; // Only allow flipping after envelope is opened
+      moomInImage.classList.toggle('flipped');
+    });
+  </script>
+
+</body>
+</html>
